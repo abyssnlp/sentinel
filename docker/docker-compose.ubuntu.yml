@@ -1,0 +1,16 @@
+version: '3'
+
+services:
+  ubuntu:
+    build:
+      context: .
+      dockerfile: ubuntu.Dockerfile
+    privileged: true
+    cap_add: ["ALL"]
+    container_name: ubuntu_20_04
+    restart: always
+    entrypoint: ["tail", "-f", "/dev/null"]
+    volumes:
+      - ../target:/app/sentinel
+      - ../services:/app/services
+      - /sys/fs/cgroup:/sys/fs/cgroup:ro
