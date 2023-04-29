@@ -1,4 +1,6 @@
-pub fn io_test() -> String { String::from("Hello") }
+pub fn io_test() -> String {
+    String::from("Hello")
+}
 
 #[derive(Debug)]
 pub struct Params {
