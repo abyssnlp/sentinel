@@ -4,13 +4,6 @@ mod utils;
 
 use crossterm::style::{style, Color, Stylize};
 
-#[derive(Debug)]
-struct Params {
-    path: String,
-    pyexec: String,
-    name: String,
-}
-
 fn main() {
     println!("Hello, world!");
     println!("{}", io::io_test());
@@ -51,7 +44,7 @@ fn main() {
                             style("Error").with(Color::Red)
                         )
                     }
-                    let params = Params {
+                    let params = io::Params {
                         path: String::from(path),
                         pyexec: String::from(pyexec),
                         name: String::from(name),
