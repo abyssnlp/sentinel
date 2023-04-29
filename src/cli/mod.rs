@@ -21,6 +21,24 @@ pub fn cli() -> Command {
                                 .required(true)
                                 .help("Path to the python program")
                                 .action(ArgAction::Set),
+                        )
+                        .arg(
+                            Arg::new("pyexec")
+                                .long("pyexec")
+                                .required(false)
+                                .default_value("python")
+                                .help("Path to the Python executable to use")
+                                .action(ArgAction::Set),
+                        )
+                        .arg(
+                            Arg::new("name")
+                                .long("name")
+                                .short('n')
+                                .required(true)
+                                .help(
+                                    "Name of the service, this will be used to reference it later",
+                                )
+                                .action(ArgAction::Set),
                         ),
                 ),
         )
