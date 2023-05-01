@@ -7,6 +7,7 @@ pub fn cli() -> Command {
         .arg_required_else_help(true)
         .allow_external_subcommands(false)
         .subcommand(Command::new("version").about("Get current sentinel version"))
+        .subcommand(Command::new("config").about("Get current Sentinel configuration"))
         .subcommand(
             Command::new("run")
                 .about("Run a systemd service")

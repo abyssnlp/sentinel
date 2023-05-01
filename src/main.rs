@@ -3,10 +3,18 @@ mod io;
 mod utils;
 
 use crossterm::style::{style, Color, Stylize};
+use dirs::home_dir;
+use once_cell::sync::OnceCell;
 
 fn main() {
-    println!("Hello, world!");
-    println!("{}", io::io_test());
+    static HOME_DIR: OnceCell<String> = OnceCell::new();
+
+    if let Some(path) = home_dir() {
+        let home_dir_str = path.to_string_lossy().to_string();
+        HOME_DIR.set(home_dir_str).unwrap();
+    } else {
+        panic!("Could not determine the HOME_DIR")
+    }
 
     let matches = cli::cli().get_matches();
 
@@ -19,6 +27,13 @@ fn main() {
             )
         }
 
+        Some(("config", _)) => {
+            println!(
+                "Current ${}: {}",
+                style("HOME").with(Color::DarkCyan),
+                style(format!("{}", *HOME_DIR.get().unwrap())).with(Color::Green)
+            )
+        }
         Some(("run", sub_matches)) => {
             let process_command = sub_matches.subcommand().unwrap_or(("help", sub_matches));
             match process_command {
