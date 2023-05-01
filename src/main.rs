@@ -59,12 +59,16 @@ fn main() {
                             style("Error").with(Color::Red)
                         )
                     }
-                    let params = io::Params {
-                        path: String::from(path),
-                        pyexec: String::from(pyexec),
-                        name: String::from(name),
-                    };
-                    println!("{:?}", params)
+
+                    println!(
+                        "{:?}",
+                        io::save_service(
+                            HOME_DIR.get().unwrap().to_owned(), // TODO: Fix ownership
+                            String::from(path),
+                            String::from(pyexec),
+                            String::from(name)
+                        )
+                    )
                 }
 
                 (name, _) => {
