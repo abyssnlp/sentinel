@@ -26,6 +26,12 @@ pub fn get_state_location(home_dir: &str) -> PathBuf {
     Path::new(home_dir).join(Path::new(SERVICES_FILE))
 }
 
+pub fn load_services(home_dir: &str) -> Result<HashMap<String, Params>, Error> {
+    let state_file = get_state_location(home_dir);
+    let map = compress_serde::decompress_from_file(state_file)?;
+    Ok(map)
+}
+
 pub fn save_service<'a>(
     home_dir: &'a str,
     path: &'a str,
@@ -53,8 +59,4 @@ pub fn save_service<'a>(
     println!("{:?}", recovered_map2);
 
     Ok(params.clone())
-}
-
-pub fn load_services(home_dir: &str) {
-    let state_file = get_state_location(home_dir);
 }
