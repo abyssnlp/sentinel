@@ -1,4 +1,5 @@
 /// HashMap: Name -> Service Info (serialized to disk)
+mod compress_serde;
 use std::path::{Path, PathBuf};
 
 const SERVICES_FILE: &str = ".sentinel/state";
@@ -29,7 +30,14 @@ pub fn save_service(home_dir: String, path: String, pyexec: String, name: String
     };
     println!("{}", home_dir);
     println!("Location of state: {:?}", get_state_location(home_dir));
+    println!("Create the systemd service");
+    println!("Enable and start the service");
+    println!("Fetch hashmap from disk and deserialize into hashmap<T>");
+    println!("Create a new entry for the hashmap and serialize to disk");
+    // hashmap -> bytes -> zstd compress
     params
 }
 
-pub fn load_services(home_dir: String) {}
+pub fn load_services(home_dir: String) {
+    let state_file = get_state_location(home_dir);
+}
