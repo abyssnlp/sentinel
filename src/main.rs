@@ -63,10 +63,10 @@ fn main() {
                     println!(
                         "{:?}",
                         io::save_service(
-                            HOME_DIR.get().unwrap().to_owned(), // TODO: Fix ownership
-                            String::from(path),
-                            String::from(pyexec),
-                            String::from(name)
+                            HOME_DIR.get().unwrap().as_str(), // TODO: Fix ownership
+                            path,
+                            pyexec,
+                            name
                         )
                     )
                 }

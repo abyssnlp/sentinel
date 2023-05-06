@@ -2,7 +2,7 @@
 name = "sentinel"
 version = "0.0.1"
 authors = ["Shaurya Rawat <rawatshaurya1994@gmail.com>"]
-categories = ["Systemd", "Services"]
+categories = ["Command line utilities", "Filesystem", "Operating systems"]
 edition = "2021"
 rust-version = "1.67.0"
 
@@ -12,4 +12,5 @@ clap = { version = "4.2.4", features = ["derive"] }
 crossterm = "0.26.1"
 dirs = "5.0.1"
 once_cell = "1.17.0"
+serde = {version = "1.0.162", features = ["derive"] }
 zstd = "0.12.3"

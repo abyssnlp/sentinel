@@ -1,10 +1,14 @@
 /// HashMap: Name -> Service Info (serialized to disk)
 mod compress_serde;
+
+use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
+use std::io::Error;
 use std::path::{Path, PathBuf};
 
 const SERVICES_FILE: &str = ".sentinel/state";
 
-#[derive(Debug)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Params {
     pub path: String,
     pub pyexec: String,
@@ -18,11 +22,16 @@ pub struct Params {
     Add to the hashmap and serialize to disk
 */
 
-pub fn get_state_location(home_dir: String) -> PathBuf {
-    Path::new(home_dir.as_str()).join(Path::new(SERVICES_FILE))
+pub fn get_state_location(home_dir: &str) -> PathBuf {
+    Path::new(home_dir).join(Path::new(SERVICES_FILE))
 }
 
-pub fn save_service(home_dir: String, path: String, pyexec: String, name: String) -> Params {
+pub fn save_service<'a>(
+    home_dir: &'a str,
+    path: &'a str,
+    pyexec: &'a str,
+    name: &'a str,
+) -> Result<Params, Error> {
     let params = Params {
         path: String::from(path),
         pyexec: String::from(pyexec),
@@ -35,9 +44,17 @@ pub fn save_service(home_dir: String, path: String, pyexec: String, name: String
     println!("Fetch hashmap from disk and deserialize into hashmap<T>");
     println!("Create a new entry for the hashmap and serialize to disk");
     // hashmap -> bytes -> zstd compress
-    params
+    let mut recovered_map = compress_serde::decompress_from_file(get_state_location(home_dir))?;
+    println!("{:?}", recovered_map);
+    // let mut map = HashMap::<String, Params>::new();
+    recovered_map.insert(params.name.clone(), params.clone());
+    compress_serde::compress_to_file(get_state_location(home_dir), &recovered_map)?;
+    let mut recovered_map2 = compress_serde::decompress_from_file(get_state_location(home_dir))?;
+    println!("{:?}", recovered_map2);
+
+    Ok(params.clone())
 }
 
-pub fn load_services(home_dir: String) {
+pub fn load_services(home_dir: &str) {
     let state_file = get_state_location(home_dir);
 }
