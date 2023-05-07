@@ -1,6 +1,7 @@
 /// HashMap: Name -> Service Info (serialized to disk)
 mod compress_serde;
 
+use crate::service;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::fs;
@@ -15,6 +16,8 @@ pub struct Params {
     pub path: String,
     pub pyexec: String,
     pub name: String,
+    pub unit_file_path: String,
+    pub systemd_file_path: String,
 }
 
 /*
@@ -30,7 +33,7 @@ pub fn get_state_location(home_dir: &str) -> PathBuf {
 
 pub fn get_services_dir(home_dir: &str) -> Result<PathBuf, Error> {
     let path = Path::new(home_dir).join(Path::new(SERVICES_DIR));
-    fs::create_dir_all(path)?;
+    fs::create_dir_all(&path)?;
     Ok(path.clone())
 }
 
@@ -46,21 +49,19 @@ pub fn save_service<'a>(
     pyexec: &'a str,
     name: &'a str,
 ) -> Result<Params, Error> {
+    let (unit_file_path, systemd_file_path) =
+        service::create_service(name, pyexec, get_services_dir(home_dir)?)?;
     let params = Params {
         path: String::from(path),
         pyexec: String::from(pyexec),
         name: String::from(name),
+        systemd_file_path: String::from(systemd_file_path),
+        unit_file_path: String::from(unit_file_path),
     };
     println!("{}", home_dir);
     println!("Location of state: {:?}", get_state_location(home_dir));
-    println!("Create the systemd service");
-    println!("Enable and start the service");
-    println!("Fetch hashmap from disk and deserialize into hashmap<T>");
-    println!("Create a new entry for the hashmap and serialize to disk");
-    // hashmap -> bytes -> zstd compress
-    let mut recovered_map = compress_serde::decompress_from_file(get_state_location(home_dir))?;
+    let mut recovered_map = load_services(home_dir)?;
     println!("{:?}", recovered_map);
-    // let mut map = HashMap::<String, Params>::new();
     recovered_map.insert(params.name.clone(), params.clone());
     compress_serde::compress_to_file(get_state_location(home_dir), &recovered_map)?;
     let mut recovered_map2 = compress_serde::decompress_from_file(get_state_location(home_dir))?;

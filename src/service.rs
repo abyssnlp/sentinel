@@ -8,7 +8,7 @@ pub fn create_service(
     service_name: &str,
     service_exec: &str,
     service_dir: PathBuf,
-) -> Result<(&str, &str), Error> {
+) -> Result<(String, String), Error> {
     let unit_file_content = format!(
         r#"
 [Unit]
@@ -44,7 +44,10 @@ WantedBy=multi-user.target
     // enable and start
     enable_and_start_service(service_name)?;
 
-    (unit_file_path.as_str(), systemd_file_path.as_str())?
+    Ok((
+        unit_file_path.to_string_lossy().into_owned(),
+        systemd_file_path.to_string_lossy().into_owned(),
+    ))
 }
 
 fn enable_and_start_service(service_name: &str) -> Result<(), Error> {
