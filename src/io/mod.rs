@@ -3,10 +3,12 @@ mod compress_serde;
 
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
+use std::fs;
 use std::io::Error;
 use std::path::{Path, PathBuf};
 
 const SERVICES_FILE: &str = ".sentinel/state";
+const SERVICES_DIR: &str = ".sentinel/services";
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Params {
@@ -24,6 +26,12 @@ pub struct Params {
 
 pub fn get_state_location(home_dir: &str) -> PathBuf {
     Path::new(home_dir).join(Path::new(SERVICES_FILE))
+}
+
+pub fn get_services_dir(home_dir: &str) -> Result<PathBuf, Error> {
+    let path = Path::new(home_dir).join(Path::new(SERVICES_DIR));
+    fs::create_dir_all(path)?;
+    Ok(path.clone())
 }
 
 pub fn load_services(home_dir: &str) -> Result<HashMap<String, Params>, Error> {

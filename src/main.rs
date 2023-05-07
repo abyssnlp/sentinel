@@ -1,5 +1,6 @@
 mod cli;
 mod io;
+mod service;
 mod utils;
 
 use crossterm::style::{style, Color, Stylize};
