@@ -10,7 +10,6 @@ rust-version = "1.67.0"
 bincode = "1.3.3"
 clap = { version = "4.2.4", features = ["derive"] }
 crossterm = "0.26.1"
-dirs = "5.0.1"
-once_cell = "1.17.0"
 serde = {version = "1.0.162", features = ["derive"] }
 zstd = "0.12.3"
+lazy_static = "1.4.0"

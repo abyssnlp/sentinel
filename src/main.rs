@@ -4,19 +4,34 @@ mod service;
 mod utils;
 
 use crossterm::style::{style, Color, Stylize};
-use dirs::home_dir;
-use once_cell::sync::OnceCell;
+use lazy_static::lazy_static;
+use std::fs;
+use std::io::{Error, ErrorKind};
+use std::os::unix::fs::PermissionsExt;
+use std::path::{Path, PathBuf};
+
+const HOME_DIR: &str = "/var/sentinel";
+
+lazy_static! {
+    static ref HOME_PATH: PathBuf = {
+        let path = Path::new(HOME_DIR);
+        if !path.exists() {
+            fs::create_dir_all(path).expect("Failed to create home directory");
+            fs::set_permissions(path, fs::Permissions::from_mode(0o777))
+                .expect("Failed to set required permission on the home directory");
+        }
+        path.to_path_buf()
+    };
+}
+
+fn get_or_create_dir() -> Result<&'static str, Error> {
+    let path_str = HOME_PATH
+        .to_str()
+        .ok_or_else(|| Error::new(ErrorKind::Other, "Failed to convert path to string"))?;
+    Ok(path_str)
+}
 
 fn main() {
-    static HOME_DIR: OnceCell<String> = OnceCell::new();
-
-    if let Some(path) = home_dir() {
-        let home_dir_str = path.to_string_lossy().to_string();
-        HOME_DIR.set(home_dir_str).unwrap();
-    } else {
-        panic!("Could not determine the HOME_DIR")
-    }
-
     let matches = cli::cli().get_matches();
 
     match matches.subcommand() {
@@ -32,7 +47,7 @@ fn main() {
             println!(
                 "Current ${}: {}",
                 style("HOME").with(Color::DarkCyan),
-                style(format!("{}", *HOME_DIR.get().unwrap())).with(Color::Green)
+                style(format!("{}", get_or_create_dir().unwrap_or(""))).with(Color::Green)
             )
         }
         Some(("run", sub_matches)) => {
@@ -64,7 +79,7 @@ fn main() {
                     println!(
                         "{:?}",
                         io::save_service(
-                            HOME_DIR.get().unwrap().as_str(), // TODO: Fix ownership
+                            get_or_create_dir().unwrap(), // TODO: Fix ownership
                             path,
                             pyexec,
                             name

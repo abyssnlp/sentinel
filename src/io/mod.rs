@@ -8,8 +8,8 @@ use std::fs;
 use std::io::Error;
 use std::path::{Path, PathBuf};
 
-const SERVICES_FILE: &str = ".sentinel/state";
-const SERVICES_DIR: &str = ".sentinel/services";
+const SERVICES_FILE: &str = "state";
+const SERVICES_DIR: &str = "services";
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Params {
@@ -49,8 +49,11 @@ pub fn save_service<'a>(
     pyexec: &'a str,
     name: &'a str,
 ) -> Result<Params, Error> {
-    let (unit_file_path, systemd_file_path) =
-        service::create_service(name, pyexec, get_services_dir(home_dir)?)?;
+    let (unit_file_path, systemd_file_path) = service::create_service(
+        name,
+        format!("{} {}", pyexec, path).as_str(),
+        get_services_dir(home_dir)?,
+    )?;
     let params = Params {
         path: String::from(path),
         pyexec: String::from(pyexec),
