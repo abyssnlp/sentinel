@@ -1,8 +1,20 @@
+use crate::io::Params;
 use std::fs;
 use std::io::{Error, ErrorKind, Write};
 use std::os::unix::fs::symlink;
 use std::path::{Path, PathBuf};
 use std::process::Command;
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct Status {
+    pub name: String,
+    pub pid: i32,
+    pub cpu: f32,
+    pub memory: f32,
+    pub active: String,
+    pub enabled: String,
+    pub params: Params,
+}
 
 pub fn create_service(
     service_name: &str,
@@ -86,4 +98,9 @@ fn enable_and_start_service(service_name: &str) -> Result<(), Error> {
     }
 
     Ok(())
+}
+
+fn get_service_status(service_name: &str) -> Result<Vec<Status>, Error> {
+    println!("Status");
+    Ok(Vec::<Status>::new())
 }
