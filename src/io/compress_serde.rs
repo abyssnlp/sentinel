@@ -3,7 +3,7 @@ use bincode::{deserialize_from, serialize_into};
 use std::collections::HashMap;
 use std::fs::{File, OpenOptions};
 use std::io::ErrorKind::NotFound;
-use std::io::{BufReader, BufWriter, Error, ErrorKind, Read, Write};
+use std::io::{BufReader, BufWriter, Cursor, Error, ErrorKind, Read, Write};
 use std::path::PathBuf;
 use zstd::{Decoder, Encoder};
 
@@ -42,7 +42,7 @@ pub fn compress_to_file(path: PathBuf, data: &HashMap<String, Params>) -> Result
 
 // Decompress from file
 pub fn decompress_from_file(path: PathBuf) -> Result<HashMap<String, Params>> {
-    let file = OpenOptions::new().read(true).open(&path).or_else(|e| {
+    let mut file = OpenOptions::new().read(true).open(&path).or_else(|e| {
         if e.kind() == NotFound {
             File::create(path.as_path())
         } else {
@@ -50,6 +50,15 @@ pub fn decompress_from_file(path: PathBuf) -> Result<HashMap<String, Params>> {
         }
     })?;
 
-    let mut reader = BufReader::new(file);
+    // Check if the file is empty
+    let mut buffer = Vec::new();
+    file.read_to_end(&mut buffer)?;
+
+    if buffer.is_empty() {
+        return Ok::<HashMap<String, Params>, Error>(HashMap::new());
+    }
+    //
+
+    let mut reader = BufReader::new(Cursor::new(buffer));
     decompress(&mut reader)
 }
