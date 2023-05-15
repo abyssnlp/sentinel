@@ -43,4 +43,16 @@ pub fn cli() -> Command {
                         ),
                 ),
         )
+        .subcommand(
+            Command::new("status")
+                .about("Get status of a service")
+                .subcommand_required(false)
+                .arg(
+                    Arg::new("name")
+                        .required(false)
+                        .index(1)
+                        .help("Name of the service to get status for")
+                        .action(ArgAction::Set),
+                ),
+        )
 }

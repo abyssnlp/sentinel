@@ -93,6 +93,15 @@ fn main() {
             }
         }
 
+        Some(("status", sub_matches)) => {
+            let service = sub_matches
+                .get_one::<String>("name")
+                .map(|s| s.as_str())
+                .unwrap_or("all");
+
+            println!("{:?}", service);
+        }
+
         _ => unreachable!(),
     }
 }
