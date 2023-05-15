@@ -3,6 +3,7 @@ mod io;
 mod service;
 mod utils;
 
+use crate::service::get_service_status;
 use crossterm::style::{style, Color, Stylize};
 use lazy_static::lazy_static;
 use std::fs;
@@ -99,7 +100,10 @@ fn main() {
                 .map(|s| s.as_str())
                 .unwrap_or("all");
 
-            println!("{:?}", service);
+            println!(
+                "{:?}",
+                get_service_status(service, get_or_create_dir().unwrap())
+            );
         }
 
         _ => unreachable!(),

@@ -1,4 +1,4 @@
-use crate::io::Params;
+use crate::io::{compress_serde, get_state_location, Params};
 use serde::{Deserialize, Serialize};
 use std::fs;
 use std::io::{Error, ErrorKind, Write};
@@ -101,7 +101,36 @@ fn enable_and_start_service(service_name: &str) -> Result<(), Error> {
     Ok(())
 }
 
-fn get_service_status(service_name: &str) -> Result<Vec<Status>, Error> {
-    println!("Status");
-    Ok(Vec::<Status>::new())
+pub fn get_service_status(service_name: &str, home_dir: &str) -> Result<Vec<Status>, Error> {
+    let state_file = get_state_location(home_dir);
+    let map = compress_serde::decompress_from_file(state_file)?;
+    let params = map.get(service_name);
+    if params.is_none() {
+        return Ok(Vec::<Status>::new());
+    } else {
+        let service_params = params.unwrap();
+        // check pid
+        let pid = get_service_pid(format!("{}.service", service_name))?;
+        println!("PID: {}", pid);
+        Ok(Vec::<Status>::new())
+    }
+}
+
+fn get_service_pid(service_name: String) -> Result<i64, Error> {
+    let pid = Command::new("systemctl")
+        .arg("show")
+        .arg("--property")
+        .arg("MainPID")
+        .arg(service_name)
+        .output()?;
+
+    String::from_utf8_lossy(&pid.stdout)
+        .trim()
+        .split("=")
+        .nth(1)
+        .ok_or_else(|| Error::new(ErrorKind::Other, "Couldn't extract MainPID"))
+        .and_then(|s| {
+            s.parse::<i64>()
+                .map_err(|_| Error::new(ErrorKind::Other, "Invalid MainPID value"))
+        })
 }

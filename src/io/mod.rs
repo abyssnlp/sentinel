@@ -1,5 +1,5 @@
 /// HashMap: Name -> Service Info (serialized to disk)
-mod compress_serde;
+pub mod compress_serde;
 
 use crate::service;
 use serde::{Deserialize, Serialize};
