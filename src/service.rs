@@ -4,7 +4,7 @@ use std::fs;
 use std::io::{Error, ErrorKind, Write};
 use std::os::unix::fs::symlink;
 use std::path::{Path, PathBuf};
-use std::process::Command;
+use std::process::{Command, Stdio};
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Status {
@@ -112,6 +112,8 @@ pub fn get_service_status(service_name: &str, home_dir: &str) -> Result<Vec<Stat
         // check pid
         let pid = get_service_pid(format!("{}.service", service_name))?;
         println!("PID: {}", pid);
+        let (cpu, mem) = get_resource_usage(pid)?;
+        println!("cpu: {}, mem: {}", cpu, mem);
         Ok(Vec::<Status>::new())
     }
 }
@@ -133,4 +135,29 @@ fn get_service_pid(service_name: String) -> Result<i64, Error> {
             s.parse::<i64>()
                 .map_err(|_| Error::new(ErrorKind::Other, "Invalid MainPID value"))
         })
+}
+
+fn get_resource_usage(pid: i64) -> Result<(f32, f32), Error> {
+    let ps_output = Command::new("ps")
+        .arg("-o")
+        .arg("%cpu,%mem")
+        .arg("-p")
+        .arg(pid.to_string())
+        .stdout(Stdio::piped())
+        .output()?;
+
+    let output_str = String::from_utf8_lossy(&ps_output.stdout);
+    let cpu_mem_percentages: Vec<&str> = output_str.trim().split_whitespace().collect();
+
+    let cpu_percentage = cpu_mem_percentages
+        .get(0)
+        .and_then(|s| s.parse::<f32>().ok())
+        .unwrap_or(0.0);
+
+    let mem_percentage = cpu_mem_percentages
+        .get(1)
+        .and_then(|s| s.parse::<f32>().ok())
+        .unwrap_or(0.0);
+
+    Ok((cpu_percentage, mem_percentage))
 }
