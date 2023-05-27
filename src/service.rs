@@ -9,7 +9,7 @@ use std::process::{Command, Stdio};
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Status {
     pub name: String,
-    pub pid: i32,
+    pub pid: i64,
     pub cpu: f32,
     pub memory: f32,
     pub active: String,
@@ -104,6 +104,29 @@ fn enable_and_start_service(service_name: &str) -> Result<(), Error> {
 pub fn get_service_status(service_name: &str, home_dir: &str) -> Result<Vec<Status>, Error> {
     let state_file = get_state_location(home_dir);
     let map = compress_serde::decompress_from_file(state_file)?;
+    // if map.is_empty() {
+    //     return Ok(Vec::<Status>::new());
+    // }
+    // if service_name == "all" {
+    //     return map
+    //         .into_iter()
+    //         .map(|(k, v)| {
+    //             let service_name = format!("{}.service", k);
+    //             let pid = get_service_pid(service_name)?;
+    //             let (cpu, mem) = get_resource_usage(pid)?;
+    //             let (active, enabled) = get_active_enabled(service_name.to_owned())?;
+    //             Status {
+    //                 name: k,
+    //                 pid,
+    //                 cpu,
+    //                 memory: mem,
+    //                 active,
+    //                 enabled,
+    //                 params: v,
+    //             }
+    //         })
+    //         .collect();
+    // }
     let params = map.get(service_name);
     if params.is_none() {
         return Ok(Vec::<Status>::new());
@@ -114,6 +137,8 @@ pub fn get_service_status(service_name: &str, home_dir: &str) -> Result<Vec<Stat
         println!("PID: {}", pid);
         let (cpu, mem) = get_resource_usage(pid)?;
         println!("cpu: {}, mem: {}", cpu, mem);
+        let (active, enabled) = get_active_enabled(format!("{}.service", service_name))?;
+        println!("active: {}, enabled: {}", active, enabled);
         Ok(Vec::<Status>::new())
     }
 }
@@ -160,4 +185,21 @@ fn get_resource_usage(pid: i64) -> Result<(f32, f32), Error> {
         .unwrap_or(0.0);
 
     Ok((cpu_percentage, mem_percentage))
+}
+
+fn get_active_enabled(service_name: String) -> Result<(String, String), Error> {
+    let active = Command::new("systemctl")
+        .arg("is-active")
+        .arg(&service_name)
+        .output()?;
+
+    let enabled = Command::new("systemctl")
+        .arg("is-enabled")
+        .arg(&service_name)
+        .output()?;
+
+    Ok((
+        String::from_utf8_lossy(&active.stdout).trim().to_string(),
+        String::from_utf8_lossy(&enabled.stdout).trim().to_string(),
+    ))
 }
