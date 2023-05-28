@@ -146,11 +146,8 @@ pub fn get_service_status(service_name: &str, home_dir: &str) -> Result<Vec<Stat
             .collect();
         return statuses;
     }
-    let params = map.get(service_name);
-    if params.is_none() {
-        Ok(Vec::<Status>::new())
-    } else {
-        let service_params = params.unwrap().to_owned();
+    if let Some(params) = map.get(service_name) {
+        let service_params = params.to_owned();
         // check pid
         let pid = get_service_pid(format!("{service_name}.service").as_str())?;
         let (cpu, mem) = get_resource_usage(pid)?;
@@ -164,6 +161,8 @@ pub fn get_service_status(service_name: &str, home_dir: &str) -> Result<Vec<Stat
             enabled,
             params: service_params,
         }])
+    } else {
+        Ok(Vec::<Status>::new())
     }
 }
 

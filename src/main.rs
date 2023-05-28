@@ -101,9 +101,7 @@ fn main() {
                 .map(|s| s.as_str())
                 .unwrap_or("all");
 
-            let status_result = get_service_status(service, get_or_create_dir().unwrap());
-
-            if status_result.is_ok() {
+            if let Ok(status_result) = get_service_status(service, get_or_create_dir().unwrap()) {
                 let statuses = status_result.unwrap();
                 let table = utils::create_table(statuses);
                 table.printstd()
