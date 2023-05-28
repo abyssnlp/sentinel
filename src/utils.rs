@@ -1,4 +1,5 @@
 use crate::service::Status;
+use crossterm::style::{style, Color, Stylize};
 use prettytable::{Cell, Row, Table};
 
 pub fn validate_py(path: &str) -> bool {
@@ -14,7 +15,7 @@ pub fn create_table(status_vec: Vec<Status>) -> Table {
 
     let fields: Vec<Cell> = Status::get_field_names()
         .into_iter()
-        .map(|f| Cell::new(&f))
+        .map(|f| Cell::new(style(&f).with(Color::Green).to_string().as_str()))
         .collect();
 
     table.add_row(Row::new(fields));
