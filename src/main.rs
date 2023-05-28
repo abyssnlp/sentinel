@@ -8,6 +8,7 @@ use crossterm::style::{style, Color, Stylize};
 use lazy_static::lazy_static;
 use std::fs;
 use std::io::{Error, ErrorKind};
+use std::os::linux::raw::stat;
 use std::os::unix::fs::PermissionsExt;
 use std::path::{Path, PathBuf};
 
@@ -100,10 +101,15 @@ fn main() {
                 .map(|s| s.as_str())
                 .unwrap_or("all");
 
-            println!(
-                "{:?}",
-                get_service_status(service, get_or_create_dir().unwrap())
-            );
+            let status_result = get_service_status(service, get_or_create_dir().unwrap());
+
+            if status_result.is_ok() {
+                let statuses = status_result.unwrap();
+                let table = utils::create_table(statuses);
+                table.printstd()
+            } else {
+                println!("Could not get service status!")
+            }
         }
 
         _ => unreachable!(),

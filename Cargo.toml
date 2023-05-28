@@ -13,3 +13,4 @@ crossterm = "0.26.1"
 serde = {version = "1.0.162", features = ["derive"] }
 zstd = "0.12.3"
 lazy_static = "1.4.0"
+prettytable-rs = "0.10.0"

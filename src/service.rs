@@ -17,6 +17,17 @@ pub struct Status {
     pub params: Params,
 }
 
+impl Status {
+    pub fn get_field_names() -> Vec<String> {
+        vec![
+            "name", "pid", "cpu", "memory", "active", "enabled", "params",
+        ]
+        .into_iter()
+        .map(|s| s.to_string())
+        .collect()
+    }
+}
+
 pub fn create_service(
     service_name: &str,
     service_exec: &str,
@@ -132,15 +143,20 @@ pub fn get_service_status(service_name: &str, home_dir: &str) -> Result<Vec<Stat
     if params.is_none() {
         return Ok(Vec::<Status>::new());
     } else {
-        let service_params = params.unwrap();
+        let service_params = params.unwrap().to_owned();
         // check pid
         let pid = get_service_pid(format!("{}.service", service_name).as_str())?;
-        println!("PID: {}", pid);
         let (cpu, mem) = get_resource_usage(pid)?;
-        println!("cpu: {}, mem: {}", cpu, mem);
         let (active, enabled) = get_active_enabled(format!("{}.service", service_name))?;
-        println!("active: {}, enabled: {}", active, enabled);
-        Ok(Vec::<Status>::new())
+        Ok(vec![Status {
+            name: service_name.parse().unwrap(),
+            pid,
+            cpu,
+            memory: mem,
+            active,
+            enabled,
+            params: service_params,
+        }])
     }
 }
 
