@@ -11,6 +11,14 @@ repos:
           - "--all"
           - "--"
           - "--check"
+  - repo: local
+    hooks:
+      - id: clippy
+        name: clippy
+        language: system
+        entry: cargo clippy
+        types:
+          - rust
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.4.0
     hooks:
