@@ -12,7 +12,7 @@ type Result<T> = std::result::Result<T, Error>;
 fn compress<T: Write>(data: &HashMap<String, Params>, mut writer: T) -> Result<()> {
     let mut encoder = Encoder::new(&mut writer, 0)?;
     serialize_into(&mut encoder, data)
-        .map_err(|e| Error::new(ErrorKind::Other, format!("Zstd encoder error {}", e)))?;
+        .map_err(|e| Error::new(ErrorKind::Other, format!("Zstd encoder error {e}")))?;
     encoder
         .finish()
         .map_err(|e| Error::new(ErrorKind::Other, e))?;
@@ -23,7 +23,7 @@ fn compress<T: Write>(data: &HashMap<String, Params>, mut writer: T) -> Result<(
 fn decompress<T: Read>(reader: &mut T) -> Result<HashMap<String, Params>> {
     let mut decoder = Decoder::new(reader)?;
     let data: HashMap<String, Params> = deserialize_from(&mut decoder)
-        .map_err(|e| Error::new(ErrorKind::Other, format!("Zstd decoder error {}", e)))?;
+        .map_err(|e| Error::new(ErrorKind::Other, format!("Zstd decoder error {e}")))?;
     Ok(data)
 }
 

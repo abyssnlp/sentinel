@@ -3,11 +3,7 @@ use crossterm::style::{style, Color, Stylize};
 use prettytable::{Cell, Row, Table};
 
 pub fn validate_py(path: &str) -> bool {
-    if path.ends_with("py") {
-        true
-    } else {
-        false
-    }
+    path.ends_with("py")
 }
 
 pub fn create_table(status_vec: Vec<Status>) -> Table {

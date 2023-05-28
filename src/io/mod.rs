@@ -34,7 +34,7 @@ pub fn get_state_location(home_dir: &str) -> PathBuf {
 pub fn get_services_dir(home_dir: &str) -> Result<PathBuf, Error> {
     let path = Path::new(home_dir).join(Path::new(SERVICES_DIR));
     fs::create_dir_all(&path)?;
-    Ok(path.clone())
+    Ok(path)
 }
 
 pub fn load_services(home_dir: &str) -> Result<HashMap<String, Params>, Error> {
@@ -51,24 +51,24 @@ pub fn save_service<'a>(
 ) -> Result<Params, Error> {
     let (unit_file_path, systemd_file_path) = service::create_service(
         name,
-        format!("{} {}", pyexec, path).as_str(),
+        format!("{pyexec} {path}").as_str(),
         get_services_dir(home_dir)?,
     )?;
     let params = Params {
         path: String::from(path),
         pyexec: String::from(pyexec),
         name: String::from(name),
-        systemd_file_path: String::from(systemd_file_path),
-        unit_file_path: String::from(unit_file_path),
+        systemd_file_path,
+        unit_file_path,
     };
-    println!("{}", home_dir);
+    println!("{home_dir}");
     println!("Location of state: {:?}", get_state_location(home_dir));
     let mut recovered_map = load_services(home_dir)?;
-    println!("{:?}", recovered_map);
+    println!("{recovered_map:?}");
     recovered_map.insert(params.name.clone(), params.clone());
     compress_serde::compress_to_file(get_state_location(home_dir), &recovered_map)?;
-    let mut recovered_map2 = compress_serde::decompress_from_file(get_state_location(home_dir))?;
-    println!("{:?}", recovered_map2);
+    let recovered_map2 = compress_serde::decompress_from_file(get_state_location(home_dir))?;
+    println!("{recovered_map2:?}");
 
-    Ok(params.clone())
+    Ok(params)
 }

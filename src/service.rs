@@ -58,16 +58,14 @@ Restart=on-failure
 [Install]
 WantedBy=multi-user.target
 "#,
-        service_name = service_name,
-        service_exec = service_exec,
     );
 
-    let unit_file_path = service_dir.join(format!("{}.service", service_name));
+    let unit_file_path = service_dir.join(format!("{service_name}.service"));
     let mut file = fs::File::create(&unit_file_path)?;
     file.write_all(unit_file_content.as_bytes())?;
 
     let systemd_dir = Path::new("/etc/systemd/system");
-    let systemd_file_path = systemd_dir.join(format!("{}.service", service_name));
+    let systemd_file_path = systemd_dir.join(format!("{service_name}.service"));
 
     if systemd_file_path.exists() {
         fs::remove_file(&systemd_file_path)?;
@@ -131,10 +129,10 @@ pub fn get_service_status(service_name: &str, home_dir: &str) -> Result<Vec<Stat
         let statuses: Result<Vec<Status>, Error> = map
             .into_iter()
             .map(|(k, v)| {
-                let service_name = format!("{}.service", k);
+                let service_name = format!("{k}.service");
                 let pid = get_service_pid(service_name.as_str())?;
                 let (cpu, mem) = get_resource_usage(pid)?;
-                let (active, enabled) = get_active_enabled(service_name.clone())?;
+                let (active, enabled) = get_active_enabled(service_name)?;
                 Ok(Status {
                     name: k,
                     pid,
@@ -150,13 +148,13 @@ pub fn get_service_status(service_name: &str, home_dir: &str) -> Result<Vec<Stat
     }
     let params = map.get(service_name);
     if params.is_none() {
-        return Ok(Vec::<Status>::new());
+        Ok(Vec::<Status>::new())
     } else {
         let service_params = params.unwrap().to_owned();
         // check pid
-        let pid = get_service_pid(format!("{}.service", service_name).as_str())?;
+        let pid = get_service_pid(format!("{service_name}.service").as_str())?;
         let (cpu, mem) = get_resource_usage(pid)?;
-        let (active, enabled) = get_active_enabled(format!("{}.service", service_name))?;
+        let (active, enabled) = get_active_enabled(format!("{service_name}.service"))?;
         Ok(vec![Status {
             name: service_name.parse().unwrap(),
             pid,
@@ -179,7 +177,7 @@ fn get_service_pid(service_name: &str) -> Result<i64, Error> {
 
     String::from_utf8_lossy(&pid.stdout)
         .trim()
-        .split("=")
+        .split('=')
         .nth(1)
         .ok_or_else(|| Error::new(ErrorKind::Other, "Couldn't extract MainPID"))
         .and_then(|s| {
@@ -198,10 +196,10 @@ fn get_resource_usage(pid: i64) -> Result<(f32, f32), Error> {
         .output()?;
 
     let output_str = String::from_utf8_lossy(&ps_output.stdout);
-    let cpu_mem_percentages: Vec<&str> = output_str.trim().split_whitespace().collect();
+    let cpu_mem_percentages: Vec<&str> = output_str.split_whitespace().collect();
 
     let cpu_percentage = cpu_mem_percentages
-        .get(0)
+        .first()
         .and_then(|s| s.parse::<f32>().ok())
         .unwrap_or(0.0);
 

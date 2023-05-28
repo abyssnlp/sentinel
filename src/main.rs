@@ -8,7 +8,7 @@ use crossterm::style::{style, Color, Stylize};
 use lazy_static::lazy_static;
 use std::fs;
 use std::io::{Error, ErrorKind};
-use std::os::linux::raw::stat;
+
 use std::os::unix::fs::PermissionsExt;
 use std::path::{Path, PathBuf};
 
@@ -49,7 +49,7 @@ fn main() {
             println!(
                 "Current ${}: {}",
                 style("HOME").with(Color::DarkCyan),
-                style(format!("{}", get_or_create_dir().unwrap_or(""))).with(Color::Green)
+                style(get_or_create_dir().unwrap_or("").to_string()).with(Color::Green)
             )
         }
         Some(("run", sub_matches)) => {
@@ -70,7 +70,7 @@ fn main() {
                         .unwrap();
 
                     if utils::validate_py(path) {
-                        println!("Received path: {:?}", path)
+                        println!("Received path: {path:?}")
                     } else {
                         println!(
                             "{} : Couldn't validate path to Python program",
