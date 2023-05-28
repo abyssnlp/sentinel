@@ -104,36 +104,37 @@ fn enable_and_start_service(service_name: &str) -> Result<(), Error> {
 pub fn get_service_status(service_name: &str, home_dir: &str) -> Result<Vec<Status>, Error> {
     let state_file = get_state_location(home_dir);
     let map = compress_serde::decompress_from_file(state_file)?;
-    // if map.is_empty() {
-    //     return Ok(Vec::<Status>::new());
-    // }
-    // if service_name == "all" {
-    //     return map
-    //         .into_iter()
-    //         .map(|(k, v)| {
-    //             let service_name = format!("{}.service", k);
-    //             let pid = get_service_pid(service_name)?;
-    //             let (cpu, mem) = get_resource_usage(pid)?;
-    //             let (active, enabled) = get_active_enabled(service_name.to_owned())?;
-    //             Status {
-    //                 name: k,
-    //                 pid,
-    //                 cpu,
-    //                 memory: mem,
-    //                 active,
-    //                 enabled,
-    //                 params: v,
-    //             }
-    //         })
-    //         .collect();
-    // }
+    if map.is_empty() {
+        return Ok(Vec::<Status>::new());
+    }
+    if service_name == "all" {
+        let statuses: Result<Vec<Status>, Error> = map
+            .into_iter()
+            .map(|(k, v)| {
+                let service_name = format!("{}.service", k);
+                let pid = get_service_pid(service_name.as_str())?;
+                let (cpu, mem) = get_resource_usage(pid)?;
+                let (active, enabled) = get_active_enabled(service_name.clone())?;
+                Ok(Status {
+                    name: k,
+                    pid,
+                    cpu,
+                    memory: mem,
+                    active,
+                    enabled,
+                    params: v,
+                })
+            })
+            .collect();
+        return statuses;
+    }
     let params = map.get(service_name);
     if params.is_none() {
         return Ok(Vec::<Status>::new());
     } else {
         let service_params = params.unwrap();
         // check pid
-        let pid = get_service_pid(format!("{}.service", service_name))?;
+        let pid = get_service_pid(format!("{}.service", service_name).as_str())?;
         println!("PID: {}", pid);
         let (cpu, mem) = get_resource_usage(pid)?;
         println!("cpu: {}, mem: {}", cpu, mem);
@@ -143,7 +144,7 @@ pub fn get_service_status(service_name: &str, home_dir: &str) -> Result<Vec<Stat
     }
 }
 
-fn get_service_pid(service_name: String) -> Result<i64, Error> {
+fn get_service_pid(service_name: &str) -> Result<i64, Error> {
     let pid = Command::new("systemctl")
         .arg("show")
         .arg("--property")
