@@ -106,7 +106,7 @@ fn main() {
                 let table = utils::create_table(statuses);
                 table.printstd()
             } else {
-                println!("Could not get service status!")
+                println!("Could not get service status(es)!")
             }
         }
 
