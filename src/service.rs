@@ -20,7 +20,16 @@ pub struct Status {
 impl Status {
     pub fn get_field_names() -> Vec<String> {
         vec![
-            "name", "pid", "cpu", "memory", "active", "enabled", "params",
+            "name",
+            "pid",
+            "cpu",
+            "memory",
+            "active",
+            "enabled",
+            "path",
+            "pyexec",
+            "unit_file_path",
+            "systemd_file_path",
         ]
         .into_iter()
         .map(|s| s.to_string())

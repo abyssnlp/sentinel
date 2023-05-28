@@ -35,7 +35,10 @@ pub fn create_table(status_vec: Vec<Status>) -> Table {
             } else {
                 "No"
             }),
-            Cell::new(format!("{:?}", &status.params).as_str()),
+            Cell::new(&status.params.path),
+            Cell::new(&status.params.pyexec),
+            Cell::new(&status.params.unit_file_path),
+            Cell::new(&status.params.systemd_file_path),
         ]));
     }
 
