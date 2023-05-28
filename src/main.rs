@@ -102,7 +102,7 @@ fn main() {
                 .unwrap_or("all");
 
             if let Ok(status_result) = get_service_status(service, get_or_create_dir().unwrap()) {
-                let statuses = status_result.unwrap();
+                let statuses = status_result;
                 let table = utils::create_table(statuses);
                 table.printstd()
             } else {
