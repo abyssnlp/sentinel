@@ -34,7 +34,7 @@ jobs:
       matrix:
         arch:
           - x86_64-unknown-linux-gnu
-          - x86_64_unknown-linux-musl
+          - x86_64-unknown-linux-musl
           - aarch64-apple-darwin
     steps:
       - name: Checkout Repository
