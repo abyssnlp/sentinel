@@ -5,6 +5,9 @@ on:
     tags:
       - "*"
 
+permissions:
+  contents: write
+
 jobs:
   check-version:
     name: Check version validity
@@ -47,9 +50,17 @@ jobs:
           target: ${{ matrix.arch }}
           override: true
       - name: Install Cross
+        if: ${{ matrix.arch }} != 'aarch64-apple-darwin'
         run: cargo install cross --target ${{ matrix.arch }}
       - name: Build for ${{ matrix.arch }}
+        if: ${{ matrix.arch }} != 'aarch64-apple-darwin'
         run: cross build --target ${{ matrix.arch }} --release
+      - name: Build for Apple silicon
+        if: ${{ matrix.arch }} == 'aarch64-apple-darwin'
+        uses: actions-rs/cargo@v1
+        with:
+          command: build
+          args: --release --target ${{ matrix.arch }}
       - name: Publish release
         uses: svenstaro/upload-release-action@2.5.0
         with:
