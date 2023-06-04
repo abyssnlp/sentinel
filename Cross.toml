@@ -1,0 +1,3 @@
+[build]
+default-target = "x86_64-unknown-linux-gnu"
+# Config: https://github.com/cross-rs/cross/wiki/Configuration

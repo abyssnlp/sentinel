@@ -2,10 +2,15 @@
 name = "sentinel"
 version = "0.0.1"
 authors = ["Shaurya Rawat <rawatshaurya1994@gmail.com>"]
-categories = ["Systemd", "Services"]
+categories = ["Command line utilities", "Filesystem", "Operating systems"]
 edition = "2021"
 rust-version = "1.67.0"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-
 [dependencies]
+bincode = "1.3.3"
+clap = { version = "4.2.4", features = ["derive"] }
+crossterm = "0.26.1"
+serde = {version = "1.0.162", features = ["derive"] }
+zstd = "0.12.3"
+lazy_static = "1.4.0"
+prettytable-rs = "0.10.0"
