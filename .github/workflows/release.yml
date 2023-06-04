@@ -80,8 +80,8 @@ jobs:
           args: --release --target aarch64-apple-darwin
       - name: Public release
         uses: svenstaro/upload-release-action@2.5.0
-          with:
-            repo_token: ${{ secrets.GITHUB_TOKEN }}
-            file: target/aarch64-apple-darwin/release/sentinel
-            asset_name: sentinel_aarch64-apple-darwin
-            tag: ${{ github.ref }}
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: target/aarch64-apple-darwin/release/sentinel
+          asset_name: sentinel_aarch64-apple-darwin
+          tag: ${{ github.ref }}
