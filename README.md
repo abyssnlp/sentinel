@@ -1,6 +1,11 @@
 Sentinel
 ===
 
+![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/abyssnlp/sentinel/ci.yml?label=CI&style=for-the-badge)
+
+
+![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/abyssnlp/sentinel/release.yml?label=Release&style=for-the-badge)
+
 Dev environment in docker for various OS arch:
 ```bash
 # ubuntu
