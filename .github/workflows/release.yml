@@ -4,8 +4,6 @@ on:
   push:
     tags:
       - "*"
-    branches:
-      - master
 
 jobs:
   check-version:
@@ -41,6 +39,13 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v3
+      - name: Install Rust toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          profile: minimal
+          target: ${{ matrix.arch }}
+          override: true
       - name: Install Cross
         run: cargo install cross --target ${{ matrix.arch }}
       - name: Build for ${{ matrix.arch }}
